@@ -513,6 +513,24 @@
 			"Tags": [
 				"worker_test"
 			]
+		},
+		"date1": {
+			"File": "",
+			"Args": [],
+			"Command": ["date"],
+			"Manual": false,
+			"Shard": 6,
+			"RetryMax": 0,
+			"Tags": []
+		},
+		"date2": {
+			"File": "",
+			"Args": [],
+			"Command": ["date"],
+			"Manual": false,
+			"Shard": 6,
+			"RetryMax": 0,
+			"Tags": []
 		}
 	}
 }
