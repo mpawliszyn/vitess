@@ -589,7 +589,7 @@ func main() {
 	log.Printf(strings.Repeat("=", 60))
 	skipped := len(tests) - passed - flaky - failed
 	log.Printf("%v PASSED, %v FLAKY, %v FAILED, %v SKIPPED", passed, flaky, failed, skipped)
-	log.Printf("Total time: %v", time.Since(startTime))
+	log.Printf("Total time: %v", time.Since(startTime).Truncate(100*time.Millisecond))
 
 	if failed > 0 || skipped > 0 {
 		os.Exit(1)
