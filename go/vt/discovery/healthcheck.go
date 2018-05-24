@@ -69,6 +69,7 @@ var (
 	healthcheckOnce          sync.Once
 	tabletURLTemplateString  = flag.String("tablet_url_template", "http://{{.GetTabletHostPort}}", "format string describing debug tablet url formatting. See the Go code for getTabletDebugURL() how to customize this.")
 	tabletURLTemplate        *template.Template
+	tabletURLTemplateOnce    sync.Once
 )
 
 // See the documentation for NewHealthCheck below for an explanation of these parameters.
@@ -120,17 +121,19 @@ const (
 )
 
 func init() {
-	// Flags are not parsed at this point and the default value of the flag (just the hostname) will be used.
-	ParseTabletURLTemplateFromFlag()
+	loadTabletURLTemplate()
 }
 
-// ParseTabletURLTemplateFromFlag loads or reloads the URL template.
-func ParseTabletURLTemplateFromFlag() {
-	tabletURLTemplate = template.New("")
-	_, err := tabletURLTemplate.Parse(*tabletURLTemplateString)
-	if err != nil {
-		log.Exitf("error parsing template: %v", err)
-	}
+// loadTabletURLTemplate loads or reloads the URL template.
+// Should only be used independently for testing.
+func loadTabletURLTemplate() {
+	tabletURLTemplateOnce.Do(func() {
+		tabletURLTemplate = template.New("")
+		_, err := tabletURLTemplate.Parse(*tabletURLTemplateString)
+		if err != nil {
+			log.Exitf("error parsing template: %v", err)
+		}
+	})
 }
 
 // HealthCheckStatsListener is the listener to receive health check stats update.
@@ -236,6 +239,7 @@ func (e TabletStats) GetHostNameLevel(level int) string {
 // https://{{.Tablet.Hostname}} -> https://host.dc.domain
 // https://{{.GetHostNameLevel 0}}.bastion.corp -> https://host.bastion.corp
 func (e TabletStats) getTabletDebugURL() string {
+	loadTabletURLTemplate()
 	var buffer bytes.Buffer
 	tabletURLTemplate.Execute(&buffer, e)
 	return buffer.String()
